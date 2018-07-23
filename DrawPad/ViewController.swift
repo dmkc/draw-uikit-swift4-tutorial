@@ -7,20 +7,48 @@
 //
 
 import UIKit
+import Foundation
+import CoreData
+
+struct TouchPoint {
+    var point: CGPoint
+    var azimuth: CGFloat
+    var altitude: CGFloat
+    var force: CGFloat
+}
+
+struct Curve {
+    var points: [TouchPoint]
+}
 
 class ViewController: UIViewController {
     
     @IBOutlet weak var mainImageView: UIImageView!
     @IBOutlet weak var tempImageView: UIImageView!
     
+    @IBOutlet weak var drawPointsSwitch: UISwitch!
+    
     var lastPoint = CGPoint.zero
+    var lastTouch = UITouch()
     var red: CGFloat = 0.0
     var green: CGFloat = 0.0
     var blue: CGFloat = 0.0
-    var brushWidth: CGFloat = 10.0
+    var brushWidth: CGFloat = 4.0
     var opacity: CGFloat = 1.0
     var swiped = false
+    var pointsSoFar: [CGPoint]?
+    var smoothingEnabled = false
     
+    var maxVelocity:Double = 0.0
+    
+    var predictedTouchColor = UIColor.init(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
+    var coalescedTouchColor = UIColor.init(red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0)
+    var touchColor = UIColor.init(red: 0.0, green: 0.0, blue: 1.0, alpha: 1.0)
+    var pointColor = UIColor.init(red: 1.0, green: 0.0, blue: 1.0, alpha: 0.1)
+    
+    var pathSoFar = UIBezierPath()
+    var curvesSoFar: [Curve] = []
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,65 +60,152 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        swiped = false
-        if let touch = touches.first {
-            lastPoint = touch.location(in: view)
+    // MARK: - Draw paths
+    // Return a UIBezierPath for a given set of CGPoints
+    func getPathThroughPoints(points: [CGPoint]) -> UIBezierPath {
+        var path = UIBezierPath()
+        
+        print("Drawing", points.count, "points. Smoothing enabled:", smoothingEnabled)
+        if smoothingEnabled && points.count > 2 {
+            if let p = UIBezierPath(hermiteInterpolatedPoints: points, closed: false) {
+                path = p
+            }
+        } else {
+            path = UIBezierPath()
+            path.lineJoinStyle = .round
+            
+            path.move(to: points[0])
+            for point in points {
+                path.addLine(to: point)
+            }
+        }
+        
+        if drawPointsSwitch.isOn {
+            drawPoints(points: points)
+        }
+        return path
+    }
+    
+    func drawPath(path: UIBezierPath, color: UIColor) {
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.frame = mainImageView.frame
+        shapeLayer.lineWidth = 2.0
+        shapeLayer.strokeColor = color.cgColor
+        shapeLayer.fillColor = color.cgColor
+        shapeLayer.lineJoin = kCALineJoinRound
+        shapeLayer.lineCap = kCALineCapRound
+        
+        shapeLayer.path = path.cgPath
+        mainImageView.layer.addSublayer(shapeLayer)
+    }
+    
+    func drawPoints(points: [CGPoint]) {
+        for p in points {
+            drawPoint(point: p, color: pointColor.cgColor)
         }
     }
     
-    func drawLineFrom(fromPoint: CGPoint, toPoint: CGPoint) {
-        UIGraphicsBeginImageContext(view.frame.size)
-        let context = UIGraphicsGetCurrentContext()
-        tempImageView.image?.draw(in: CGRect(x: 0, y:0, width: view.frame.size.width, height: view.frame.size.height))
+    func drawPoint(point: CGPoint, color: CGColor) {
+        let dot = CAShapeLayer()
+        dot.frame = mainImageView.frame
         
-        context?.move(to: fromPoint)
-        context?.addLine(to: toPoint)
+        dot.fillColor = color
+    
+        let startAngle = CGFloat(0.0)
+        let endAngle = CGFloat(2.0 * .pi)
+        let clockwise = true
         
-        context?.setLineCap(CGLineCap.round)
-        context?.setLineWidth(brushWidth)
-        context?.setStrokeColor(red: red, green: green, blue: blue, alpha: 1.0)
-        context?.setBlendMode(CGBlendMode.normal)
-        context?.strokePath()
+        let circlePath = UIBezierPath(arcCenter: point,
+                                      radius: CGFloat(3.0),
+                                      startAngle: startAngle,
+                                      endAngle: endAngle,
+                                      clockwise: clockwise)
         
-        tempImageView.image = UIGraphicsGetImageFromCurrentImageContext()
-        tempImageView.alpha = opacity
+        dot.path = circlePath.cgPath
+        mainImageView.layer.addSublayer(dot)
+    }
+    
+    func calculateVelocity(_ points: [CGPoint]) -> Double {
+        let first = points[0]
+        let last = points[points.count-1]
+        let x_velocity = pow(Double(first.x - last.x), 2.0)
+        let y_velocity = pow(Double(first.y - last.y), 2.0)
         
-        UIGraphicsEndImageContext()
+        return sqrt(x_velocity+y_velocity)
+    }
+
+    
+    // MARK: - Touch handlers
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("Touches began")
+        pathSoFar = UIBezierPath()
+        swiped = false
+        if let touch = touches.first {
+            lastPoint = touch.location(in: view)
+            lastTouch = touch
+            //pointsSoFar = [touch.location(in: view)]
+        }
+        
+        
+
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         swiped = true
         
         if let touch = touches.first {
-            let currentPoint = touch.location(in: view)
-            drawLineFrom(fromPoint: lastPoint, toPoint: currentPoint)
-            lastPoint = currentPoint
+            if let predictedTouches = event?.predictedTouches(for: touch) {
+                //drawLineThrough(touches: predictedTouches, color: predictedTouchColor)
+            }
+            
+            if let coalescedTouches = event?.coalescedTouches(for: touch) {
+                
+                var points = [lastPoint]
+                points.append(contentsOf: coalescedTouches.map { (touch: UITouch) -> CGPoint in
+                    return touch.location(in: view)
+                })
+                let path = getPathThroughPoints(points: points)
+                
+                pathSoFar.append(path)
+                
+                drawPath(path: path, color: touchColor)
+                print("Velocity", calculateVelocity(points), "Max", maxVelocity)
+                let velocity = calculateVelocity(points)
+                
+                if velocity > maxVelocity {
+                    maxVelocity = calculateVelocity(points)
+                }
+
+            }
+    
+            lastTouch = touch
+            lastPoint = touch.location(in: view)
+            
         }
+        //drawBezierPath(touches: touches, event: event)
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if !swiped {
-            drawLineFrom(fromPoint: lastPoint, toPoint: lastPoint)
+            drawPoint(point: lastPoint, color: touchColor.cgColor)
         }
-        UIGraphicsBeginImageContext(mainImageView.frame.size)
-        
-        mainImageView.image?.draw(in: CGRect(x:0, y:0, width: view.frame.size.width, height: view.frame.size.height), blendMode: CGBlendMode.normal, alpha: 1.0)
-        tempImageView.image?.draw(in: CGRect(x:0, y:0, width: view.frame.size.width, height: view.frame.size.height), blendMode: CGBlendMode.normal, alpha: opacity)
-        mainImageView.image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        tempImageView.image = nil
     }
+
     
     // MARK: - Actions
     
-    @IBAction func reset(sender: AnyObject) {
+    @IBAction func reset(_ sender: AnyObject) {
+        mainImageView.layer.sublayers = nil
     }
     
-    @IBAction func share(sender: AnyObject) {
+    @IBAction func share(_ sender: AnyObject) {
     }
     
-    @IBAction func pencilPressed(sender: AnyObject) {
+    @IBAction func pencilPressed(_ sender: AnyObject) {
+    }
+    
+    @IBAction func toggleSmoothing(_ sender: UISwitch) {
+        smoothingEnabled = sender.isOn 
     }
 }
 

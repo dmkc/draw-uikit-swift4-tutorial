@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14135" systemVersion="17F77" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="SCurve" representedClassName="SCurve" syncable="YES" codeGenerationType="class">
+        <relationship name="spoints" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SPoint" inverseName="scurve" inverseEntity="SPoint" syncable="YES"/>
+        <relationship name="sword" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SWord" inverseName="scurves" inverseEntity="SWord" syncable="YES"/>
+    </entity>
+    <entity name="SPoint" representedClassName="SPoint" syncable="YES" codeGenerationType="class">
+        <attribute name="altitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="azimuth" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="velocity" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="x" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="y" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="scurve" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SCurve" inverseName="spoints" inverseEntity="SCurve" syncable="YES"/>
+    </entity>
+    <entity name="SWord" representedClassName="SWord" syncable="YES" codeGenerationType="class">
+        <relationship name="scurves" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SCurve" inverseName="sword" inverseEntity="SCurve" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="SPoint" positionX="-63" positionY="-18" width="128" height="148"/>
+        <element name="SCurve" positionX="196" positionY="-117" width="128" height="73"/>
+        <element name="SWord" positionX="-11" positionY="-189" width="128" height="58"/>
+    </elements>
+</model>
