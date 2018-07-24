@@ -35,10 +35,12 @@ class ViewController: UIViewController {
     var touchColor = UIColor.init(red: 0.0, green: 0.0, blue: 1.0, alpha: 1.0)
     var pointColor = UIColor.init(red: 1.0, green: 0.0, blue: 1.0, alpha: 0.1)
     
+    // MARK: Models
+    var context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.mainQueueConcurrencyType)
     var pathSoFar = UIBezierPath()
-    var curveSoFar = SCurve()
+    var curveSoFar: SCurve?
     var lastSPoint: SPoint?
-    var currentDocument = SDocument()
+    var currentDocument: SDocument?
     
     var pointsSoFar: [CGPoint]?
     var touchStart = Date.init()
@@ -47,6 +49,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        // TODO Core data management
+        currentDocument = SDocument.init(context: context)
     }
     
     override func didReceiveMemoryWarning() {
@@ -139,7 +143,7 @@ class ViewController: UIViewController {
         if let touch = touches.first {
             lastPoint = touch.location(in: view)
             lastTouch = touch
-            curveSoFar = SCurve()
+            curveSoFar = SCurve.init(context: context)
             let point = SPoint.init(
                 touch: touch,
                 timestamp: touchStart.addingTimeInterval(touch.timestamp),
@@ -148,8 +152,7 @@ class ViewController: UIViewController {
             )
             lastSPoint = point
             
-            curveSoFar.spoints = NSSet.init(object: point)
-            //pointsSoFar = [touch.location(in: view)]
+            curveSoFar!.spoints = NSSet.init(object: point)
         }
     }
     
@@ -179,7 +182,7 @@ class ViewController: UIViewController {
                     previousPoint: lastSPoint
                 )
                 
-                curveSoFar.addToSpoints(point)
+                curveSoFar!.addToSpoints(point)
                 
                 drawPath(path: path, color: touchColor)
                 print("Velocity", calculateVelocity(points), "Max", maxVelocity)
@@ -201,7 +204,7 @@ class ViewController: UIViewController {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if !swiped {
             drawPoint(point: lastPoint, color: touchColor.cgColor)
-            currentDocument.addToScurves(curveSoFar)
+            currentDocument!.addToScurves(curveSoFar!)
         }
     }
 
