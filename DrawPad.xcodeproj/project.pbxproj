@@ -121,15 +121,15 @@
 			isa = PBXGroup;
 			children = (
 				EE43D4721A14A6F200311C06 /* AppDelegate.swift */,
-				EE43D4741A14A6F200311C06 /* ViewController.swift */,
-				78B4B8741A49DDAF002B004D /* SettingsViewController.swift */,
-				EE43D4761A14A6F200311C06 /* Main.storyboard */,
 				EE43D4791A14A6F200311C06 /* Images.xcassets */,
 				EE43D47B1A14A6F200311C06 /* LaunchScreen.xib */,
+				EE43D4761A14A6F200311C06 /* Main.storyboard */,
+				6CDEF2EC20F1C75C00851570 /* ModelExtensions.swift */,
+				78B4B8741A49DDAF002B004D /* SettingsViewController.swift */,
 				EE43D4701A14A6F200311C06 /* Supporting Files */,
 				6CBDD2C320D414050043A141 /* UIBezierPathExtensions.swift */,
-				6CDEF2EC20F1C75C00851570 /* ModelExtensions.swift */,
 				6CC5E84421064E8600A7F74B /* UIImageExtensions.swift */,
+				EE43D4741A14A6F200311C06 /* ViewController.swift */,
 			);
 			path = DrawPad;
 			sourceTree = "<group>";

@@ -10,17 +10,6 @@ import UIKit
 import Foundation
 import CoreData
 
-struct TouchPoint {
-    var point: CGPoint
-    var azimuth: CGFloat
-    var altitude: CGFloat
-    var force: CGFloat
-}
-
-struct Curve {
-    var points: [TouchPoint]
-}
-
 class ViewController: UIViewController {
     
     @IBOutlet weak var mainImageView: UIImageView!
@@ -36,7 +25,7 @@ class ViewController: UIViewController {
     var brushWidth: CGFloat = 4.0
     var opacity: CGFloat = 1.0
     var swiped = false
-    var pointsSoFar: [CGPoint]?
+
     var smoothingEnabled = false
     
     var maxVelocity:Double = 0.0
@@ -47,7 +36,12 @@ class ViewController: UIViewController {
     var pointColor = UIColor.init(red: 1.0, green: 0.0, blue: 1.0, alpha: 0.1)
     
     var pathSoFar = UIBezierPath()
-    var curvesSoFar: [Curve] = []
+    var curveSoFar = SCurve()
+    var lastSPoint: SPoint?
+    var currentDocument = SDocument()
+    
+    var pointsSoFar: [CGPoint]?
+    var touchStart = Date.init()
 
     
     override func viewDidLoad() {
@@ -140,23 +134,33 @@ class ViewController: UIViewController {
         print("Touches began")
         pathSoFar = UIBezierPath()
         swiped = false
+        touchStart = Date.init()
+        
         if let touch = touches.first {
             lastPoint = touch.location(in: view)
             lastTouch = touch
+            curveSoFar = SCurve()
+            let point = SPoint.init(
+                touch: touch,
+                timestamp: touchStart.addingTimeInterval(touch.timestamp),
+                view: view,
+                previousPoint: nil
+            )
+            lastSPoint = point
+            
+            curveSoFar.spoints = NSSet.init(object: point)
             //pointsSoFar = [touch.location(in: view)]
         }
-        
-        
-
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         swiped = true
         
         if let touch = touches.first {
-            if let predictedTouches = event?.predictedTouches(for: touch) {
-                //drawLineThrough(touches: predictedTouches, color: predictedTouchColor)
-            }
+            // TODO: Use predicted touches
+//            if let predictedTouches = event?.predictedTouches(for: touch) {
+//                //drawLineThrough(touches: predictedTouches, color: predictedTouchColor)
+//            }
             
             if let coalescedTouches = event?.coalescedTouches(for: touch) {
                 
@@ -168,12 +172,21 @@ class ViewController: UIViewController {
                 
                 pathSoFar.append(path)
                 
+                let point = SPoint.init(
+                    touch: touch,
+                    timestamp: touchStart.addingTimeInterval(touch.timestamp),
+                    view: view,
+                    previousPoint: lastSPoint
+                )
+                
+                curveSoFar.addToSpoints(point)
+                
                 drawPath(path: path, color: touchColor)
                 print("Velocity", calculateVelocity(points), "Max", maxVelocity)
-                let velocity = calculateVelocity(points)
+                let velocity = point.velocity
                 
                 if velocity > maxVelocity {
-                    maxVelocity = calculateVelocity(points)
+                    maxVelocity = velocity
                 }
 
             }
@@ -188,6 +201,7 @@ class ViewController: UIViewController {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if !swiped {
             drawPoint(point: lastPoint, color: touchColor.cgColor)
+            currentDocument.addToScurves(curveSoFar)
         }
     }
 

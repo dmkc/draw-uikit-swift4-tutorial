@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14135" systemVersion="17F77" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14135" systemVersion="17G65" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="SCurve" representedClassName="SCurve" syncable="YES" codeGenerationType="class">
-        <relationship name="spoints" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SPoint" inverseName="scurve" inverseEntity="SPoint" syncable="YES"/>
+        <relationship name="sdocument" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SDocument" inverseName="scurves" inverseEntity="SDocument" syncable="YES"/>
+        <relationship name="spoints" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SPoint" inverseName="scurve" inverseEntity="SPoint" syncable="YES"/>
         <relationship name="sword" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SWord" inverseName="scurves" inverseEntity="SWord" syncable="YES"/>
+    </entity>
+    <entity name="SDocument" representedClassName="SDocument" syncable="YES" codeGenerationType="class">
+        <relationship name="scurves" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SCurve" inverseName="sdocument" inverseEntity="SCurve" syncable="YES"/>
     </entity>
     <entity name="SPoint" representedClassName="SPoint" syncable="YES" codeGenerationType="class">
         <attribute name="altitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
@@ -14,11 +18,12 @@
         <relationship name="scurve" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SCurve" inverseName="spoints" inverseEntity="SCurve" syncable="YES"/>
     </entity>
     <entity name="SWord" representedClassName="SWord" syncable="YES" codeGenerationType="class">
-        <relationship name="scurves" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SCurve" inverseName="sword" inverseEntity="SCurve" syncable="YES"/>
+        <relationship name="scurves" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SCurve" inverseName="sword" inverseEntity="SCurve" syncable="YES"/>
     </entity>
     <elements>
-        <element name="SPoint" positionX="-63" positionY="-18" width="128" height="148"/>
-        <element name="SCurve" positionX="196" positionY="-117" width="128" height="73"/>
+        <element name="SCurve" positionX="196" positionY="-117" width="128" height="88"/>
+        <element name="SPoint" positionX="250" positionY="66" width="128" height="148"/>
         <element name="SWord" positionX="-11" positionY="-189" width="128" height="58"/>
+        <element name="SDocument" positionX="117" positionY="-36" width="128" height="60"/>
     </elements>
 </model>
