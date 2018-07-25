@@ -63,8 +63,6 @@ class ViewController: UIViewController {
         //let entity = NSEntityDescription.entity(forEntityName: "SDocument2", in: container.viewContext)!
         //currentDocument = NSManagedObject(entity: entity, insertInto: container.viewContext) as? SDocument
         currentDocument = NSEntityDescription.insertNewObject(forEntityName: "SDocument", into: container.viewContext) as? SDocument
-        
-        currentDocument?.name = "Grisha"
         print("currentDocument initialized", currentDocument!)
         
         mainImageView.image = UIImage.init()
@@ -106,7 +104,7 @@ class ViewController: UIViewController {
         shapeLayer.frame = tempImageView.frame
         shapeLayer.lineWidth = 2.0
         shapeLayer.strokeColor = color.cgColor
-        shapeLayer.fillColor = color.cgColor
+        shapeLayer.fillColor = UIColor.init(white: 0.0, alpha: 0.0).cgColor
         shapeLayer.lineJoin = kCALineJoinRound
         shapeLayer.lineCap = kCALineCapRound
         
@@ -233,24 +231,42 @@ class ViewController: UIViewController {
 
     }
 
+
     
     // MARK: - Actions
     
     @IBAction func reset(_ sender: AnyObject) {
         mainImageView.image = nil
     }
+    
     @IBAction func writeDocument(_ sender: AnyObject) {
         currentDocument?.name = documentName.text
         
         do {
             try container.viewContext.save()
+            print("Saved document \(currentDocument?.name ?? "nothing")")
         } catch {
             print("Couldn't save context")
         }
     }
     
     @IBAction func readDocument(_ sender: AnyObject) {
-        
+        let name = documentName.text
+        let req = NSFetchRequest<SDocument>.init(entityName: "SDocument")
+        req.predicate = NSPredicate(format: "name == %@", name!)
+        do {
+            let documents = try container.viewContext.fetch(req)
+            if documents.count == 0 {
+                documentName.text = "NO EXISTO"
+            } else {
+                // TODO: Draw from data
+                print("Loaded documents", documents)
+                currentDocument = documents.first
+                mainImageView.image = currentDocument?.toUIImage(frame: mainImageView.frame)
+            }
+        } catch {
+            print("Error occurred \(error)")
+        }
     }
     
     @IBAction func share(_ sender: AnyObject) {
