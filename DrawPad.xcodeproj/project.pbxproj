@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1E2EDB271F523CD623CCB266 /* Pods_DrawPadTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 81A686749251089F0CB52D42 /* Pods_DrawPadTests.framework */; };
+		6CB54D1D210819B300D0717D /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CB54D1C210819B300D0717D /* UIViewExtensions.swift */; };
 		6CBDD2C420D414050043A141 /* UIBezierPathExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CBDD2C320D414050043A141 /* UIBezierPathExtensions.swift */; };
 		6CC5E84521064E8600A7F74B /* UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC5E84421064E8600A7F74B /* UIImageExtensions.swift */; };
 		6CDEF2EB20F1C4D200851570 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6C74414020F1C3B0007315FD /* DataModel.xcdatamodeld */; };
@@ -35,6 +36,7 @@
 /* Begin PBXFileReference section */
 		694ECF0F8EBE74D60821E508 /* Pods_DrawPad.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DrawPad.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C74414120F1C3B0007315FD /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
+		6CB54D1C210819B300D0717D /* UIViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtensions.swift; sourceTree = "<group>"; };
 		6CBDD2C320D414050043A141 /* UIBezierPathExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBezierPathExtensions.swift; sourceTree = "<group>"; };
 		6CC5E84421064E8600A7F74B /* UIImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensions.swift; sourceTree = "<group>"; };
 		6CDEF2EC20F1C75C00851570 /* ModelExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelExtensions.swift; sourceTree = "<group>"; };
@@ -130,6 +132,7 @@
 				6CBDD2C320D414050043A141 /* UIBezierPathExtensions.swift */,
 				6CC5E84421064E8600A7F74B /* UIImageExtensions.swift */,
 				EE43D4741A14A6F200311C06 /* ViewController.swift */,
+				6CB54D1C210819B300D0717D /* UIViewExtensions.swift */,
 			);
 			path = DrawPad;
 			sourceTree = "<group>";
@@ -305,6 +308,7 @@
 			files = (
 				EE43D4751A14A6F200311C06 /* ViewController.swift in Sources */,
 				6CDEF2ED20F1C75C00851570 /* ModelExtensions.swift in Sources */,
+				6CB54D1D210819B300D0717D /* UIViewExtensions.swift in Sources */,
 				6CC5E84521064E8600A7F74B /* UIImageExtensions.swift in Sources */,
 				6CDEF2EB20F1C4D200851570 /* DataModel.xcdatamodeld in Sources */,
 				EE43D4731A14A6F200311C06 /* AppDelegate.swift in Sources */,

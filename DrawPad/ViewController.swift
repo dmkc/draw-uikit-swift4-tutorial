@@ -65,6 +65,8 @@ class ViewController: UIViewController {
         
         currentDocument?.name = "Grisha"
         print("currentDocument initialized", currentDocument!)
+        
+        mainImageView.image = UIImage.init()
     }
     
     override func didReceiveMemoryWarning() {
@@ -100,7 +102,7 @@ class ViewController: UIViewController {
     
     func drawPath(path: UIBezierPath, color: UIColor) {
         let shapeLayer = CAShapeLayer()
-        shapeLayer.frame = mainImageView.frame
+        shapeLayer.frame = tempImageView.frame
         shapeLayer.lineWidth = 2.0
         shapeLayer.strokeColor = color.cgColor
         shapeLayer.fillColor = color.cgColor
@@ -108,7 +110,7 @@ class ViewController: UIViewController {
         shapeLayer.lineCap = kCALineCapRound
         
         shapeLayer.path = path.cgPath
-        mainImageView.layer.addSublayer(shapeLayer)
+        tempImageView.layer.addSublayer(shapeLayer)
     }
     
     func drawPoints(points: [CGPoint]) {
@@ -208,7 +210,7 @@ class ViewController: UIViewController {
                 curveSoFar!.addToSpoints(point!)
                 
                 drawPath(path: path, color: touchColor)
-                print("Velocity", calculateVelocity(points), "Max", maxVelocity)
+                print("Velocity", point!.velocity, "Max", maxVelocity)
                 let velocity = point!.velocity
                 
                 if velocity > maxVelocity {
@@ -230,13 +232,26 @@ class ViewController: UIViewController {
             
         }
         currentDocument!.addToScurves(curveSoFar!)
+//
+//        mainImageView.image = mainImageView.image?.overlayWith(
+//            image: tempImageView.layer.contents as! UIImage,
+//            posX: 0.0,
+//            posY: 0.0
+//        )
+        mainImageView.image = mainImageView.image?.overlayWith(
+            image: tempImageView.renderIntoUIImage(),
+            posX: 0.0,
+            posY: 0.0
+        )
+        tempImageView.layer.sublayers = [CALayer()]
+
     }
 
     
     // MARK: - Actions
     
     @IBAction func reset(_ sender: AnyObject) {
-        mainImageView.layer.sublayers = nil
+        mainImageView.image = nil
     }
     
     @IBAction func share(_ sender: AnyObject) {
