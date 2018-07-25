@@ -6,6 +6,7 @@
         <relationship name="sword" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SWord" inverseName="scurves" inverseEntity="SWord" syncable="YES"/>
     </entity>
     <entity name="SDocument" representedClassName="SDocument" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="scurves" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SCurve" inverseName="sdocument" inverseEntity="SCurve" syncable="YES"/>
     </entity>
     <entity name="SPoint" representedClassName="SPoint" syncable="YES" codeGenerationType="class">
@@ -22,8 +23,8 @@
     </entity>
     <elements>
         <element name="SCurve" positionX="196" positionY="-117" width="128" height="88"/>
+        <element name="SDocument" positionX="117" positionY="-36" width="128" height="75"/>
         <element name="SPoint" positionX="250" positionY="66" width="128" height="148"/>
         <element name="SWord" positionX="-11" positionY="-189" width="128" height="58"/>
-        <element name="SDocument" positionX="117" positionY="-36" width="128" height="60"/>
     </elements>
 </model>

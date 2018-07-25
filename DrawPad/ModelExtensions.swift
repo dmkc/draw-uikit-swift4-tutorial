@@ -11,8 +11,7 @@ import CoreData
 import UIKit
 
 extension SPoint {
-    convenience init(touch: UITouch, timestamp: Date, view: UIView, previousPoint: SPoint?) {
-        self.init()
+    func fromTouch(touch: UITouch, timestamp: Date, view: UIView, previousPoint: SPoint?) {
         let location = touch.location(in: view)
         
         self.x = Double(location.x)

@@ -36,7 +36,16 @@ class ViewController: UIViewController {
     var pointColor = UIColor.init(red: 1.0, green: 0.0, blue: 1.0, alpha: 0.1)
     
     // MARK: Models
-    var context = NSManagedObjectContext.init(concurrencyType: NSManagedObjectContextConcurrencyType.mainQueueConcurrencyType)
+    lazy var container: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "DataModel")
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved Core Data init error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
+    
     var pathSoFar = UIBezierPath()
     var curveSoFar: SCurve?
     var lastSPoint: SPoint?
@@ -48,9 +57,14 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         // Do any additional setup after loading the view, typically from a nib.
-        // TODO Core data management
-        currentDocument = SDocument.init(context: context)
+        //let entity = NSEntityDescription.entity(forEntityName: "SDocument2", in: container.viewContext)!
+        //currentDocument = NSManagedObject(entity: entity, insertInto: container.viewContext) as? SDocument
+        currentDocument = NSEntityDescription.insertNewObject(forEntityName: "SDocument", into: container.viewContext) as? SDocument
+        
+        currentDocument?.name = "Grisha"
+        print("currentDocument initialized", currentDocument!)
     }
     
     override func didReceiveMemoryWarning() {
@@ -143,8 +157,13 @@ class ViewController: UIViewController {
         if let touch = touches.first {
             lastPoint = touch.location(in: view)
             lastTouch = touch
-            curveSoFar = SCurve.init(context: context)
-            let point = SPoint.init(
+            curveSoFar = NSEntityDescription.insertNewObject(forEntityName: "SCurve", into: container.viewContext) as? SCurve
+            
+            let point = NSEntityDescription.insertNewObject(
+                forEntityName: "SPoint",
+                into: container.viewContext) as? SPoint
+
+            point?.fromTouch(
                 touch: touch,
                 timestamp: touchStart.addingTimeInterval(touch.timestamp),
                 view: view,
@@ -152,7 +171,7 @@ class ViewController: UIViewController {
             )
             lastSPoint = point
             
-            curveSoFar!.spoints = NSSet.init(object: point)
+            curveSoFar!.spoints = NSSet.init(object: point!)
         }
     }
     
@@ -175,18 +194,22 @@ class ViewController: UIViewController {
                 
                 pathSoFar.append(path)
                 
-                let point = SPoint.init(
+                let point = NSEntityDescription.insertNewObject(
+                    forEntityName: "SPoint",
+                    into: container.viewContext) as? SPoint
+                
+                point?.fromTouch(
                     touch: touch,
                     timestamp: touchStart.addingTimeInterval(touch.timestamp),
                     view: view,
-                    previousPoint: lastSPoint
+                    previousPoint: nil
                 )
                 
-                curveSoFar!.addToSpoints(point)
+                curveSoFar!.addToSpoints(point!)
                 
                 drawPath(path: path, color: touchColor)
                 print("Velocity", calculateVelocity(points), "Max", maxVelocity)
-                let velocity = point.velocity
+                let velocity = point!.velocity
                 
                 if velocity > maxVelocity {
                     maxVelocity = velocity
@@ -204,8 +227,9 @@ class ViewController: UIViewController {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if !swiped {
             drawPoint(point: lastPoint, color: touchColor.cgColor)
-            currentDocument!.addToScurves(curveSoFar!)
+            
         }
+        currentDocument!.addToScurves(curveSoFar!)
     }
 
     
