@@ -140,16 +140,6 @@ class ViewController: UIViewController {
         mainImageView.layer.addSublayer(dot)
     }
     
-    func calculateVelocity(_ points: [CGPoint]) -> Double {
-        let first = points[0]
-        let last = points[points.count-1]
-        let x_velocity = pow(Double(first.x - last.x), 2.0)
-        let y_velocity = pow(Double(first.y - last.y), 2.0)
-        
-        return sqrt(x_velocity+y_velocity)
-    }
-
-    
     // MARK: - Touch handlers
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         print("Touches began")
@@ -205,7 +195,7 @@ class ViewController: UIViewController {
                     touch: touch,
                     timestamp: touchStart.addingTimeInterval(touch.timestamp),
                     view: view,
-                    previousPoint: nil
+                    previousPoint: lastSPoint
                 )
                 
                 curveSoFar!.addToSpoints(point!)
