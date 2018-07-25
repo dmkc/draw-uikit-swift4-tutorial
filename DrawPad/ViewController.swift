@@ -16,6 +16,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var tempImageView: UIImageView!
     
     @IBOutlet weak var drawPointsSwitch: UISwitch!
+    @IBOutlet weak var documentName: UITextField!
     
     var lastPoint = CGPoint.zero
     var lastTouch = UITouch()
@@ -232,12 +233,7 @@ class ViewController: UIViewController {
             
         }
         currentDocument!.addToScurves(curveSoFar!)
-//
-//        mainImageView.image = mainImageView.image?.overlayWith(
-//            image: tempImageView.layer.contents as! UIImage,
-//            posX: 0.0,
-//            posY: 0.0
-//        )
+
         mainImageView.image = mainImageView.image?.overlayWith(
             image: tempImageView.renderIntoUIImage(),
             posX: 0.0,
@@ -252,6 +248,19 @@ class ViewController: UIViewController {
     
     @IBAction func reset(_ sender: AnyObject) {
         mainImageView.image = nil
+    }
+    @IBAction func writeDocument(_ sender: AnyObject) {
+        currentDocument?.name = documentName.text
+        
+        do {
+            try container.viewContext.save()
+        } catch {
+            print("Couldn't save context")
+        }
+    }
+    
+    @IBAction func readDocument(_ sender: AnyObject) {
+        
     }
     
     @IBAction func share(_ sender: AnyObject) {

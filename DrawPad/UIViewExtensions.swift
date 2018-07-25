@@ -13,12 +13,6 @@ extension UIView
 {
     func renderIntoUIImage() -> UIImage
     {
-        UIGraphicsBeginImageContextWithOptions(self.frame.size, false, 0.0)
-        
-        self.layer.render(in: UIGraphicsGetCurrentContext()!)
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        
-        UIGraphicsEndImageContext()
-        return image!
+        return self.layer.renderIntoUIImage()
     }
 }
